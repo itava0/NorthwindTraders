@@ -1,204 +1,128 @@
 package org.pluralsight;
+import org.apache.commons.dbcp2.BasicDataSource;
 import java.sql.*;
 import java.util.Scanner;
-import javax.sql.DataSource;
 
 public class App {
-    public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/northwind";
-        String user = "root";
-
-        String myPassword = System.getenv("PASSWORD");
-
-
-
-
-
-
-//        String query = "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products WHERE ProductID = ?";
-        String query1 = "SELECT * FROM Products";
-        String query2 = "SELECT * FROM Customers";
-        String query3 = "SELECT * FROM Categories ORDER BY CategoryID";
-
-
-
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("What do you want to do?");
-        System.out.println("1) Display all products");
-        System.out.println("2) Display all customers");
-        System.out.println("3) Display all categories");
-        System.out.println("0) Display all customers");
-        int userOption = scanner.nextInt();
-
-        switch (userOption){
-            case 1: {
-                getProducts(url, user, myPassword, query1);
-            }break;
-            case 2: {getCustomers(url, user, myPassword, query2);}
-            break;
-            case 3: displayAll(url,user,myPassword,query3,scanner);
-                break;
+    public static Scanner scan = new Scanner(System.in);
+    public static void main(String[] args) throws SQLException {
+        String username = System.getenv("USERNAME");
+        String password = System.getenv("PASSWORD");
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setUrl("jdbc:mysql://localhost:3306/northwind");
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        String userInput = "";
+        while (true) {
+            System.out.println("""
+                    What do you want to do?
+                    1) Display all products
+                    2) Display all customers
+                    3) Display all categories
+                    0) Exit""");
+            userInput = scan.nextLine();
+            switch(userInput){
+                case "1":
+                    displayProducts(dataSource);
+                    break;
+                case "2":
+                    displayCustomers(dataSource);
+                    break;
+                case "3":
+                    displayCategories(dataSource);
+                    break;
+                case "0":
+                    scan.close();
+                    dataSource.close();
+                    System.exit(0);
+                default:
+                    System.out.println("ERROR: Please choose a valid option");
+                    break;
+            }
         }
-
-
-
-
-
-
-
     }
 
-    private static void getProducts(String url, String user, String password, String query1) {
-        Connection conn = null;
-        ResultSet rs = null;
-        try {
-            //trying to get a connection
-            conn = DriverManager.getConnection(url, user, password);
-
-            //passing in the preparedStatement
-            PreparedStatement preparedStatement = conn.prepareStatement(query1);
-
-            //setting the first parameter of the statement to a value
-//            preparedStatement.setInt(1,10);
-
-
-//            Statement stmt = conn.createStatement();
-
-            //Executes the passed in query
-            rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                //getting the values and setting the variables to use later.
-                int productID = rs.getInt("ProductID");
-                String productName = rs.getString("ProductName");
-                double unitPrice = rs.getDouble("UnitPrice");
-                int unitsInStock = rs.getInt("UnitsInStock");
-
-                System.out.println("ProductID: " + productID);
-                System.out.println("ProductName: " + productName);
-                System.out.println("UnitPrice: " + unitPrice);
-                System.out.println("UnitsInStock: " + unitsInStock);
-                System.out.println();
-            }
-            //closing resultSet and connection
-            rs.close();
-//            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try{
-                if (rs != null) {
-                    rs.close();
+    public static void displayProducts(BasicDataSource dataSource) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("select * from products;")){
+            try( ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    System.out.println("ID: " + results.getString(1));
+                    System.out.println("Name: " + results.getString(2));
+                    System.out.println("Price: " + results.getDouble(6));
+                    System.out.println("Stock: " + results.getString(7));
+                    System.out.println("__________________________________________________________");
+                    System.out.println();
                 }
-                if (conn != null){
-                    conn.close();
+            }
+        }
+        catch (SQLException e){
+            System.out.println("An error has occurred in the search");
+        }
+    }
+    public static void displayCustomers(BasicDataSource dataSource) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("select * from customers;");){
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    System.out.println("ID: " + results.getString(1));
+                    System.out.println("Name: " + results.getString(3));
+                    System.out.println("Address: " + results.getString(5));
+                    System.out.println("City: " + results.getString(6));
+                    System.out.println("Country: " + results.getString(9));
+                    System.out.println("__________________________________________________________");
+                    System.out.println();
                 }
-            } catch (Exception e){
-                e.printStackTrace();
             }
         }
-    }
-    private static void getCustomers(String url, String user, String password, String query2) {
-        try (     //trying to get a connection
-                  Connection conn = DriverManager.getConnection(url, user, password);
-
-                  //passing in the preparedStatement
-                  PreparedStatement preparedStatement = conn.prepareStatement(query2);
-
-                  //setting the first parameter of the statement to a value
-//            preparedStatement.setInt(1,10);
-
-
-//            Statement stmt = conn.createStatement();
-
-                  //Executes the passed in query
-                  ResultSet rs = preparedStatement.executeQuery()){
-
-
-            while (rs.next()) {
-                //getting the values and setting the variables to use later.
-                String customerID = rs.getString("CustomerID");
-                String companyName = rs.getString("CompanyName");
-                String contactName  = rs.getString("ContactName");
-                String contactTitle = rs.getString("ContactTitle");
-                String address = rs.getString("Address");
-                String city= rs.getString("City");
-                String postalCode = rs.getString("PostalCode");
-                String country = rs.getString("Country");
-                String phone = rs.getString("Phone");
-
-
-                System.out.println("CustomerID: " + customerID);
-                System.out.println("Company Name: " + companyName);
-                System.out.println("Contact Name:" + contactName);
-                System.out.println("Contact Title: " + contactTitle);
-                System.out.println("Address: " + address);
-                System.out.println("City:" + city);
-                System.out.println("Phone: " + phone);
-
-
-
-                System.out.println();
-            }
-            //closing resultSet and connection
-            rs.close();
-//            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        catch (SQLException e){
+            System.out.println("An error has occurred in the search");
         }
     }
-    private static void displayAll(String url, String user, String password, String query3, Scanner scanner) {
-        try (     //trying to get a connection
-                  Connection conn = DriverManager.getConnection(url, user, password);
-                  //passing in the preparedStatement
-                  PreparedStatement preparedStatement = conn.prepareStatement(query3);
-                  //setting the first parameter of the statement to a value
-//            preparedStatement.setInt(1,10);
-//            Statement stmt = conn.createStatement();
-                  //Executes the passed in query
-                  ResultSet rs = preparedStatement.executeQuery();
-        )
-        {
-            while (rs.next()) {
-
-                //getting the values and setting the variables to use later.
-                int categoryID = rs.getInt("CategoryID");
-                String categoryName = rs.getString("CategoryName");
-                System.out.println();
-
-                System.out.println("CategoryID: " + categoryID);
-                System.out.println("CategoryName: " + categoryName);
+    public static void displayCategories(BasicDataSource dataSource){
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("select * from categories order by categoryid;");){
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    System.out.println("ID: " + results.getString(1));
+                    System.out.println("Name: " + results.getString(2));
+                    System.out.println("__________________________________________________________");
+                    System.out.println();
+                }
             }
-            System.out.println("Which category ID do you want to display");
-            int chosenID = scanner.nextInt();
-
-            String query4 = "SELECT * FROM PRODUCTS WHERE CategoryID = ? ";
-            PreparedStatement preparedStatement2 = conn.prepareStatement(query4);
-            preparedStatement2.setInt(1,chosenID);
-            ResultSet rs2 = preparedStatement2.executeQuery();
-
-            while(rs2.next()){
-                int productID = rs2.getInt("ProductID");
-                String productName = rs2.getString("ProductName");
-                double unitPrice = rs2.getDouble("UnitPrice");
-                int unitsInStock = rs2.getInt("UnitsInStock");
-
-                System.out.println("ProductID: " + productID);
-                System.out.println("ProductName: " + productName);
-                System.out.println("UnitPrice: " + unitPrice);
-                System.out.println("UnitsInStock: " + unitsInStock);
-                System.out.println();
-                System.out.println("------------------");
+        }
+        catch (SQLException e){
+            System.out.println("An error has occurred in the search");
+        }
+        String userInput = "";
+        while(!userInput.equalsIgnoreCase("0")){
+            System.out.println("Which category would you like to view the products of? (0 to exit, please select by ID)");
+            userInput = scan.nextLine();
+            switch(userInput){
+                case "1", "2", "3", "4", "5", "6", "7", "8":
+                    try (Connection connection = dataSource.getConnection();
+                         PreparedStatement statement = connection.prepareStatement("select * from products where categoryid = " + userInput + ";")){
+                        try( ResultSet results = statement.executeQuery()) {
+                            while (results.next()) {
+                                System.out.println("ID: " + results.getString(1));
+                                System.out.println("Name: " + results.getString(2));
+                                System.out.println("Price: " + results.getDouble(6));
+                                System.out.println("Stock: " + results.getString(7));
+                                System.out.println("__________________________________________________________");
+                                System.out.println();
+                            }
+                        }
+                    }
+                    catch (SQLException e){
+                        System.out.println("An error has occurred in the search");
+                    }
+                    break;
+                case "0":
+                    break;
+                default:
+                    System.out.println("ERROR: Please choose a category by ID or enter 0");
+                    break;
             }
-
-            //closing resultSet and connection
-            rs.close();
-//            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

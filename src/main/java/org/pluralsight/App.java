@@ -47,10 +47,10 @@ public class App {
              PreparedStatement statement = connection.prepareStatement("select * from products;")){
             try( ResultSet results = statement.executeQuery()) {
                 while (results.next()) {
-                    System.out.println("ID: " + results.getString(1));
-                    System.out.println("Name: " + results.getString(2));
-                    System.out.println("Price: " + results.getDouble(6));
-                    System.out.println("Stock: " + results.getString(7));
+                    System.out.println("ProductID " + results.getString("ProductID"));
+                    System.out.println("ProductName " + results.getString("ProductName"));
+                    System.out.println("UnitPrice " + results.getString("UnitPrice"));
+                    System.out.println("UnitsInStock " + results.getString("UnitsInStock"));
                     System.out.println("__________________________________________________________");
                     System.out.println();
                 }
@@ -65,11 +65,11 @@ public class App {
              PreparedStatement statement = connection.prepareStatement("select * from customers;");){
             try (ResultSet results = statement.executeQuery()) {
                 while (results.next()) {
-                    System.out.println("ID: " + results.getString(1));
-                    System.out.println("Name: " + results.getString(3));
-                    System.out.println("Address: " + results.getString(5));
-                    System.out.println("City: " + results.getString(6));
-                    System.out.println("Country: " + results.getString(9));
+                    System.out.println("ID: " + results.getString("CustomerID"));
+                    System.out.println("Name: " + results.getString("ContactName"));
+                    System.out.println("Address: " + results.getString("Address"));
+                    System.out.println("City: " + results.getString("City"));
+                    System.out.println("Country: " + results.getString("Country"));
                     System.out.println("__________________________________________________________");
                     System.out.println();
                 }
@@ -84,8 +84,8 @@ public class App {
              PreparedStatement statement = connection.prepareStatement("select * from categories order by categoryid;");){
             try (ResultSet results = statement.executeQuery()) {
                 while (results.next()) {
-                    System.out.println("ID: " + results.getString(1));
-                    System.out.println("Name: " + results.getString(2));
+                    System.out.println("ID: " + results.getString("CategoryID"));
+                    System.out.println("Name: " + results.getString("CategoryName"));
                     System.out.println("__________________________________________________________");
                     System.out.println();
                 }
@@ -104,10 +104,10 @@ public class App {
                          PreparedStatement statement = connection.prepareStatement("select * from products where categoryid = " + userInput + ";")){
                         try( ResultSet results = statement.executeQuery()) {
                             while (results.next()) {
-                                System.out.println("ID: " + results.getString(1));
-                                System.out.println("Name: " + results.getString(2));
-                                System.out.println("Price: " + results.getDouble(6));
-                                System.out.println("Stock: " + results.getString(7));
+                                System.out.println("ProductID " + results.getString("ProductID"));
+                                System.out.println("ProductName " + results.getString("ProductName"));
+                                System.out.println("UnitPrice " + results.getString("UnitPrice"));
+                                System.out.println("UnitsInStock " + results.getString("UnitsInStock"));
                                 System.out.println("__________________________________________________________");
                                 System.out.println();
                             }

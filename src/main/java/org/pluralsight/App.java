@@ -17,16 +17,22 @@ public class App {
             Statement stmt = conn.createStatement();
 
             // Executing query
-            ResultSet rs = stmt.executeQuery(query);
+            ResultSet results = stmt.executeQuery(query);
 
             // Processing the result set
-            while (rs.next()) {
-                // Replace with your column names and types
-                System.out.println(rs.getString(2));
+            while (results.next()) {
+                System.out.println("ProductID " + results.getString("ProductID"));
+                System.out.println("ProductName " + results.getString("ProductName"));
+                System.out.println("UnitPrice " + results.getString("UnitPrice"));
+                System.out.println("UnitsInStock " + results.getString("UnitsInStock"));
+                System.out.println("""
+                        ----------------------------------
+                        """);
+
             }
 
             // Closing resources
-            rs.close();
+            results.close();
             stmt.close();
             conn.close();
         } catch (SQLException e) {
